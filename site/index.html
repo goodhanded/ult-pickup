@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <title>Uplift Laundry Truck</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+  <p class="num" id="label">Uplift Laundry Truck</p>
+
+  <div id="loading" data-state><p class="muted">Loading...</p></div>
+
+  <div id="missing" data-state hidden>
+    <h1>This link isn't active</h1>
+    <p class="muted">Please ask Uplift Laundry Truck for a new link.</p>
+  </div>
+
+  <div id="failed" data-state hidden>
+    <h1>Something went wrong</h1>
+    <p class="muted">Please reload the page in a minute.</p>
+  </div>
+
+  <div id="page" data-state hidden>
+    <h1 id="siteName"></h1>
+    <p class="muted">Laundry cards Uplift has asked you to prepare, and who is coming to pick one up.</p>
+
+    <label for="attendant">Your name</label>
+    <input id="attendant" autocomplete="name" placeholder="So Uplift knows who helped">
+
+    <label for="find">Find someone</label>
+    <input id="find" inputmode="search" placeholder="Request number or last 4 of phone">
+
+    <h2>To prepare</h2>
+    <div id="toPrepare"></div>
+
+    <h2>Ready for pickup</h2>
+    <div id="readyForPickup"></div>
+  </div>
+
+  <div id="result" class="status" hidden></div>
+</main>
+<script src="../assets/config.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+  (function () {
+    var tok = ULT.token();
+    var data = null;
+    var attendant = document.getElementById('attendant');
+    var find = document.getElementById('find');
+
+    try { attendant.value = localStorage.getItem('ult-attendant') || ''; } catch (e) {}
+    attendant.addEventListener('change', function () {
+      try { localStorage.setItem('ult-attendant', attendant.value); } catch (e) {}
+    });
+    find.addEventListener('input', render);
+
+    if (!tok) { ULT.reveal('missing'); return; }
+    ULT.read('site', tok).then(function (res) {
+      if (!res.ok || res.state === 'missing') { ULT.reveal('missing'); return; }
+      data = res;
+      ULT.setText('label', res.programName);
+      ULT.setText('siteName', res.siteName);
+      document.title = res.siteName;
+      render();
+      ULT.reveal('page');
+    }).catch(function () { ULT.reveal('failed'); });
+
+    function matches(r) {
+      var q = (find.value || '').trim().toUpperCase();
+      if (!q) return true;
+      return r.requestNumber.toUpperCase().indexOf(q) !== -1 || (q.length === 4 && r.phoneLast4 === q);
+    }
+
+    function el(tag, className, text) {
+      var node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    function card(r, ready) {
+      var box = el('div', 'card');
+      var top = el('div', 'row');
+      top.appendChild(el('span', 'name', r.name));
+      top.appendChild(el('span', 'num', r.requestNumber));
+      box.appendChild(top);
+      var parts = [];
+      if (r.credit) parts.push(r.credit + ' card');
+      if (r.supplies) parts.push(r.supplies);
+      box.appendChild(el('p', 'detail', parts.join(' + ') || 'No items listed'));
+      if (ready && r.deadline) {
+        box.appendChild(el('p', r.missed ? 'detail late' : 'detail',
+          (r.missed ? 'Pickup window ended ' : 'Pick up by ') + r.deadline));
+      }
+      var actions = el('div', 'actions');
+      var button = el('button', 'primary', ready ? 'Picked up' : 'Card is ready');
+      button.addEventListener('click', function () { step(r.requestNumber, ready ? 'pickedUp' : 'ready', button); });
+      actions.appendChild(button);
+      box.appendChild(actions);
+      return box;
+    }
+
+    function fill(id, list, ready) {
+      var box = document.getElementById(id);
+      box.textContent = '';
+      var shown = list.filter(matches);
+      if (!shown.length) { box.appendChild(el('p', 'empty', list.length ? 'No match.' : 'Nothing right now.')); return; }
+      shown.forEach(function (r) { box.appendChild(card(r, ready)); });
+    }
+
+    function render() {
+      if (!data) return;
+      fill('toPrepare', data.toPrepare || [], false);
+      fill('readyForPickup', data.readyForPickup || [], true);
+    }
+
+    function step(requestNumber, which, button) {
+      var who = (attendant.value || '').trim();
+      if (which === 'pickedUp' && !who) { ULT.show('Please enter your name first.', false); attendant.focus(); return; }
+      button.disabled = true;
+      ULT.act({ action: 'site', token: tok, requestNumber: requestNumber, step: which, attendant: who })
+        .then(function (res) {
+          if (!res.ok) { button.disabled = false; ULT.show(res.message, false); return; }
+          data = res.data;
+          render();
+          ULT.show(which === 'ready' ? requestNumber + ' is ready. We let the participant know.'
+            : requestNumber + ' picked up. Thank you!', true);
+        })
+        .catch(function () { button.disabled = false; ULT.show('Something went wrong. Please try again.', false); });
+    }
+  })();
+</script>
+</body>
+</html>

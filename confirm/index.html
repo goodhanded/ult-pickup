@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <title>Uplift Laundry Truck</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+  <p class="num" id="label">Uplift Laundry Truck</p>
+
+  <div id="loading" data-state><p class="muted">Loading your request...</p></div>
+
+  <div id="missing" data-state hidden>
+    <h1>We couldn't find this request</h1>
+    <p class="muted">The link may be incomplete. Please reply to the email you got from us instead.</p>
+  </div>
+
+  <div id="failed" data-state hidden>
+    <h1>Something went wrong</h1>
+    <p class="muted">Please try again in a minute, or reply YES to the email you got from us.</p>
+  </div>
+
+  <div id="question" data-state hidden>
+    <h1 id="ask">Do you still need laundry help?</h1>
+    <div id="open">
+      <p class="muted">Tap one. Nothing changes until you do.</p>
+      <div class="actions" id="actions">
+        <button class="primary" id="yes">Yes, I still need help</button>
+        <button id="no">No, I don't need it</button>
+      </div>
+    </div>
+    <p id="confirmed" hidden>You already confirmed. We will email you when your laundry card is ready.</p>
+    <p id="closed" hidden>This request is closed. If you need help again, please fill out a new request.</p>
+  </div>
+
+  <div id="result" class="status" hidden></div>
+</main>
+<script src="../assets/config.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+  (function () {
+    var tok = ULT.token();
+    if (!tok) { ULT.reveal('missing'); return; }
+
+    ULT.read('confirm', tok).then(function (data) {
+      if (!data.ok || data.state === 'missing') { ULT.reveal('missing'); return; }
+      ULT.setText('label', data.programName + ' · ' + data.requestNumber);
+      ULT.setText('ask', 'Hi ' + data.firstName + ', do you still need laundry help?');
+      document.getElementById('open').hidden = data.state !== 'open';
+      document.getElementById('confirmed').hidden = data.state !== 'confirmed';
+      document.getElementById('closed').hidden = data.state !== 'closed';
+      ULT.reveal('question');
+    }).catch(function () { ULT.reveal('failed'); });
+
+    function answer(value) {
+      document.querySelectorAll('#actions button').forEach(function (b) { b.disabled = true; });
+      ULT.act({ action: 'confirm', token: tok, answer: value }).then(function (res) {
+        ULT.show(res.message, res.ok);
+        if (res.ok) document.getElementById('open').hidden = true;
+        else document.querySelectorAll('#actions button').forEach(function (b) { b.disabled = false; });
+      }).catch(function () {
+        document.querySelectorAll('#actions button').forEach(function (b) { b.disabled = false; });
+        ULT.show('Something went wrong. Please try again, or reply YES to our email.', false);
+      });
+    }
+    document.getElementById('yes').addEventListener('click', function () { answer('yes'); });
+    document.getElementById('no').addEventListener('click', function () { answer('no'); });
+  })();
+</script>
+</body>
+</html>
