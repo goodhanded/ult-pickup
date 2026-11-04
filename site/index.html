@@ -31,9 +31,6 @@
     <label for="attendant">Your name</label>
     <input id="attendant" autocomplete="name" placeholder="So Uplift knows who helped">
 
-    <label for="find">Find someone</label>
-    <input id="find" inputmode="search" placeholder="Request number or last 4 of phone">
-
     <h2>To prepare</h2>
     <div id="toPrepare"></div>
 
@@ -50,13 +47,11 @@
     var tok = ULT.token();
     var data = null;
     var attendant = document.getElementById('attendant');
-    var find = document.getElementById('find');
 
     try { attendant.value = localStorage.getItem('ult-attendant') || ''; } catch (e) {}
     attendant.addEventListener('change', function () {
       try { localStorage.setItem('ult-attendant', attendant.value); } catch (e) {}
     });
-    find.addEventListener('input', render);
 
     if (!tok) { ULT.reveal('missing'); return; }
     ULT.read('site', tok).then(function (res) {
@@ -68,12 +63,6 @@
       render();
       ULT.reveal('page');
     }).catch(function () { ULT.reveal('failed'); });
-
-    function matches(r) {
-      var q = (find.value || '').trim().toUpperCase();
-      if (!q) return true;
-      return r.requestNumber.toUpperCase().indexOf(q) !== -1 || (q.length === 4 && r.phoneLast4 === q);
-    }
 
     function el(tag, className, text) {
       var node = document.createElement(tag);
@@ -107,9 +96,8 @@
     function fill(id, list, ready) {
       var box = document.getElementById(id);
       box.textContent = '';
-      var shown = list.filter(matches);
-      if (!shown.length) { box.appendChild(el('p', 'empty', list.length ? 'No match.' : 'Nothing right now.')); return; }
-      shown.forEach(function (r) { box.appendChild(card(r, ready)); });
+      if (!list.length) { box.appendChild(el('p', 'empty', 'Nothing right now.')); return; }
+      list.forEach(function (r) { box.appendChild(card(r, ready)); });
     }
 
     function render() {

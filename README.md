@@ -15,7 +15,7 @@ Apps Script can serve pages itself, but on phones signed into Google accounts th
 
 - The token is in the `#fragment`, which browsers never send to this host or in a Referer header.
 - Opening a page changes nothing. Only pressing a button does, so email link scanners can't confirm anything.
-- Laundromats see first name and last initial, never a full name, email, or phone number (the page filters by the last 4 digits of a phone without displaying them).
+- Laundromats see first name and last initial, never a full name, email, or any part of a phone number.
 
 ## Moving to Uplift
 
