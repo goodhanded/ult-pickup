@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <title>Uplift Laundry Truck</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+  <p class="num" id="label">Uplift Laundry Truck</p>
+
+  <div id="loading" data-state><p class="muted">Loading...</p></div>
+
+  <div id="missing" data-state hidden>
+    <h1>This pickup code isn't active</h1>
+    <p class="muted">Please contact Uplift Laundry Truck.</p>
+  </div>
+
+  <div id="failed" data-state hidden>
+    <h1>Something went wrong</h1>
+    <p class="muted">Please reload the page in a minute.</p>
+  </div>
+
+  <div id="notReady" data-state hidden>
+    <h1>This card isn't ready yet</h1>
+    <p class="muted"><span class="fill-request"></span>. We will email when it is ready to pick up.</p>
+  </div>
+
+  <div id="ready" data-state hidden>
+    <p class="notice">Show this screen to the staff at <strong class="fill-site"></strong>.</p>
+    <div class="card">
+      <div class="row">
+        <span class="name fill-name"></span>
+        <span class="num fill-number"></span>
+      </div>
+      <p class="detail" id="package"></p>
+      <p class="detail" id="deadline"></p>
+    </div>
+
+    <h2>For laundromat staff</h2>
+    <label for="attendant">Your name</label>
+    <input id="attendant" autocomplete="name" placeholder="So Uplift knows who helped">
+    <div class="actions">
+      <button class="primary" id="pickedUp">Staff: mark picked up</button>
+    </div>
+  </div>
+
+  <div id="pickedUp-state" data-state hidden>
+    <h1>Picked up</h1>
+    <p><span class="fill-request"></span> picked up their card at <span class="fill-site"></span>
+      on <span id="pickedUpOn"></span>. Thank you!</p>
+    <p id="back" hidden><a id="backLink" href="../site/">Back to your laundromat page</a></p>
+  </div>
+
+  <div id="result" class="status" hidden></div>
+</main>
+<script src="../assets/config.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+  (function () {
+    var tok = ULT.token();
+    var attendant = document.getElementById('attendant');
+    var button = document.getElementById('pickedUp');
+    ULT.bindAttendant(attendant);
+
+    if (!tok) { ULT.reveal('missing'); return; }
+    ULT.read('pickup', tok).then(show).catch(function () { ULT.reveal('failed'); });
+
+    function fill(cls, text) {
+      document.querySelectorAll('.' + cls).forEach(function (n) { n.textContent = text; });
+    }
+
+    function show(res) {
+      if (!res.ok || res.state === 'missing' || res.state === 'inactive') { ULT.reveal('missing'); return; }
+      ULT.setText('label', res.programName);
+      fill('fill-site', res.siteName);
+      fill('fill-name', res.name);
+      fill('fill-number', res.requestNumber);
+      fill('fill-request', res.name + ' (' + res.requestNumber + ')');
+      if (res.state === 'notReady') { ULT.reveal('notReady'); return; }
+      if (res.state === 'pickedUp') {
+        ULT.setText('pickedUpOn', res.pickedUpOn);
+        var site = ULT.rememberedSite();
+        if (site) {
+          document.getElementById('backLink').href = '../site/#' + encodeURIComponent(site);
+          document.getElementById('back').hidden = false;
+        }
+        ULT.reveal('pickedUp-state');
+        return;
+      }
+      var parts = [];
+      if (res.credit) parts.push(res.credit + ' laundry card');
+      if (res.supplies) parts.push(res.supplies);
+      ULT.setText('package', parts.join(' + ') || 'No items listed');
+      var deadline = document.getElementById('deadline');
+      deadline.textContent = (res.missed ? 'Pickup window ended ' : 'Pick up by ') + res.deadline;
+      deadline.className = res.missed ? 'detail late' : 'detail';
+      ULT.reveal('ready');
+    }
+
+    button.addEventListener('click', function () {
+      var who = (attendant.value || '').trim();
+      if (!who) { ULT.show('Please enter your name first.', false); attendant.focus(); return; }
+      button.disabled = true;
+      ULT.act({ action: 'pickup', token: tok, attendant: who, siteToken: ULT.rememberedSite() })
+        .then(function (res) {
+          if (!res.ok) { button.disabled = false; ULT.show(res.message, false); return; }
+          document.getElementById('result').hidden = true;
+          show(res.data);
+        })
+        .catch(function () { button.disabled = false; ULT.show('Something went wrong. Please try again.', false); });
+    });
+  })();
+</script>
+</body>
+</html>
