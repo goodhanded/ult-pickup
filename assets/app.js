@@ -47,5 +47,23 @@
     if (el) el.hidden = false;
   }
 
-  window.ULT = { token: token, read: read, act: act, show: show, setText: setText, reveal: reveal };
+  // A laundromat page remembers its own link on the phone that opened it, so a
+  // pickup code scanned on that phone is recorded as confirmed by the laundromat.
+  // Only ever a convenience: nothing requires it, and a cleared browser loses it.
+  var SITE_KEY = 'ult-site';
+  function rememberSite(tok) { try { localStorage.setItem(SITE_KEY, tok); } catch (e) {} }
+  function forgetSite(tok) { try { if (localStorage.getItem(SITE_KEY) === tok) localStorage.removeItem(SITE_KEY); } catch (e) {} }
+  function rememberedSite() { try { return localStorage.getItem(SITE_KEY) || ''; } catch (e) { return ''; } }
+
+  // The attendant's name, kept on the phone between visits.
+  var NAME_KEY = 'ult-attendant';
+  function bindAttendant(input) {
+    try { input.value = localStorage.getItem(NAME_KEY) || ''; } catch (e) {}
+    input.addEventListener('change', function () {
+      try { localStorage.setItem(NAME_KEY, input.value); } catch (e) {}
+    });
+  }
+
+  window.ULT = { token: token, read: read, act: act, show: show, setText: setText, reveal: reveal,
+    rememberSite: rememberSite, forgetSite: forgetSite, rememberedSite: rememberedSite, bindAttendant: bindAttendant };
 })();

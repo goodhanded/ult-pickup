@@ -26,16 +26,19 @@
 
   <div id="page" data-state hidden>
     <h1 id="siteName"></h1>
-    <p class="muted">Laundry cards Uplift has asked you to prepare, and who is coming to pick one up.</p>
+    <p class="muted">Laundry cards Uplift has asked you to prepare, and who is coming to pick one up.
+      A participant can also show you a pickup code: scan it with this phone's camera.</p>
 
-    <label for="attendant">Your name</label>
-    <input id="attendant" autocomplete="name" placeholder="So Uplift knows who helped">
+    <div class="field-row">
+      <label for="attendant">Your name</label>
+      <input id="attendant" autocomplete="name" placeholder="So Uplift knows who helped">
+    </div>
 
-    <h2>To prepare</h2>
-    <div id="toPrepare"></div>
-
-    <h2>Ready for pickup</h2>
+    <h2>Ready for pickup <span class="count" id="readyCount"></span></h2>
     <div id="readyForPickup"></div>
+
+    <h2>To prepare <span class="count" id="prepareCount"></span></h2>
+    <div id="toPrepare"></div>
   </div>
 
   <div id="result" class="status" hidden></div>
@@ -47,15 +50,12 @@
     var tok = ULT.token();
     var data = null;
     var attendant = document.getElementById('attendant');
-
-    try { attendant.value = localStorage.getItem('ult-attendant') || ''; } catch (e) {}
-    attendant.addEventListener('change', function () {
-      try { localStorage.setItem('ult-attendant', attendant.value); } catch (e) {}
-    });
+    ULT.bindAttendant(attendant);
 
     if (!tok) { ULT.reveal('missing'); return; }
     ULT.read('site', tok).then(function (res) {
-      if (!res.ok || res.state === 'missing') { ULT.reveal('missing'); return; }
+      if (!res.ok || res.state === 'missing') { ULT.forgetSite(tok); ULT.reveal('missing'); return; }
+      ULT.rememberSite(tok);
       data = res;
       ULT.setText('label', res.programName);
       ULT.setText('siteName', res.siteName);
@@ -71,39 +71,43 @@
       return node;
     }
 
-    function card(r, ready) {
-      var box = el('div', 'card');
-      var top = el('div', 'row');
+    // One line per request, so a long list stays scannable on a phone.
+    function item(r, ready) {
+      var row = el('li', 'item');
+      var who = el('div', 'who');
+      var top = el('div', 'line');
       top.appendChild(el('span', 'name', r.name));
       top.appendChild(el('span', 'num', r.requestNumber));
-      box.appendChild(top);
+      who.appendChild(top);
       var parts = [];
       if (r.credit) parts.push(r.credit + ' card');
       if (r.supplies) parts.push(r.supplies);
-      box.appendChild(el('p', 'detail', parts.join(' + ') || 'No items listed'));
+      who.appendChild(el('p', 'detail', parts.join(' + ') || 'No items listed'));
       if (ready && r.deadline) {
-        box.appendChild(el('p', r.missed ? 'detail late' : 'detail',
-          (r.missed ? 'Pickup window ended ' : 'Pick up by ') + r.deadline));
+        who.appendChild(el('p', r.missed ? 'detail late' : 'detail',
+          (r.missed ? 'Pickup window ended ' : 'By ') + r.deadline));
       }
-      var actions = el('div', 'actions');
+      row.appendChild(who);
       var button = el('button', 'primary', ready ? 'Picked up' : 'Card is ready');
       button.addEventListener('click', function () { step(r.requestNumber, ready ? 'pickedUp' : 'ready', button); });
-      actions.appendChild(button);
-      box.appendChild(actions);
-      return box;
+      row.appendChild(button);
+      return row;
     }
 
-    function fill(id, list, ready) {
+    function fill(id, countId, list, ready) {
       var box = document.getElementById(id);
       box.textContent = '';
+      ULT.setText(countId, list.length ? '(' + list.length + ')' : '');
       if (!list.length) { box.appendChild(el('p', 'empty', 'Nothing right now.')); return; }
-      list.forEach(function (r) { box.appendChild(card(r, ready)); });
+      var ul = el('ul', 'list');
+      list.forEach(function (r) { ul.appendChild(item(r, ready)); });
+      box.appendChild(ul);
     }
 
     function render() {
       if (!data) return;
-      fill('toPrepare', data.toPrepare || [], false);
-      fill('readyForPickup', data.readyForPickup || [], true);
+      fill('readyForPickup', 'readyCount', data.readyForPickup || [], true);
+      fill('toPrepare', 'prepareCount', data.toPrepare || [], false);
     }
 
     function step(requestNumber, which, button) {

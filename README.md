@@ -3,7 +3,8 @@
 The pages Uplift Laundry Truck's Rapid Response emails link to:
 
 - `confirm/#<token>`: a participant confirms they still need laundry help, or says they don't.
-- `site/#<token>`: a partner laundromat's private page, listing only its own requests (first name and last initial), where it marks a card ready and records a pickup.
+- `site/#<token>`: a partner laundromat's private page, listing only its own requests (first name and last initial), one line each, where it marks a card ready and records a pickup.
+- `pickup/#<code>`: the page a participant's pickup QR code opens. It shows that one request and asks them to show the screen to the laundromat staff, who record the pickup with their name.
 
 These are static files with no data in them. Everything is read from and written to Uplift's Google Sheet through an Apps Script web app (the `uplift-rapid-response` project), whose address is the one setting in `assets/config.js`.
 
@@ -16,6 +17,7 @@ Apps Script can serve pages itself, but on phones signed into Google accounts th
 - The token is in the `#fragment`, which browsers never send to this host or in a Referer header.
 - Opening a page changes nothing. Only pressing a button does, so email link scanners can't confirm anything.
 - Laundromats see first name and last initial, never a full name, email, or any part of a phone number.
+- A pickup code opens one request and nothing else. A laundromat page remembers its own link in the phone's browser storage, and the pickup page sends it along when a pickup is recorded, so Uplift can tell a pickup confirmed on the laundromat's phone from one confirmed on any other. Nothing depends on it.
 
 ## Moving to Uplift
 
