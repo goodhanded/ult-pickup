@@ -1,8 +1,10 @@
 /*
  * Uplift Laundry Truck's brand, from its logo and upliftlaundrytruck.org:
- * navy #3a406d (the ULT letters), orange #ff9d55 (the swoosh), sky #03a2ff (its
- * edge); Manrope for headings, Poppins for text. The fonts are served from here,
- * not Google Fonts, so opening a page sends nothing to a third party.
+ * gold #f7a70a (the washer and "Uplift"), sky #11a2fc ("LAUNDRY TRUCK"), sun
+ * #ffde59; Manrope for headings, Poppins for text. White text fails on gold and
+ * on sky, so buttons are gold with dark text and headings and links use a deeper
+ * sky, #0a6fc2 (5.2:1 on white). The fonts are served from here, not Google
+ * Fonts, so opening a page sends nothing to a third party.
  */
 @font-face { font-family: "Manrope"; font-weight: 800; font-display: swap;
   src: url("fonts/manrope-latin-800-normal.woff2") format("woff2"); }
@@ -12,13 +14,13 @@
   src: url("fonts/poppins-latin-600-normal.woff2") format("woff2"); }
 
 :root {
-  --navy: #3a406d; --orange: #ff9d55; --sky: #03a2ff;
-  --bg: #f6f6f9; --surface: #ffffff; --ink: #23274a; --heading: var(--navy); --muted: #5d6180; --line: #dcdeea;
-  --accent: var(--navy); --accent-ink: #ffffff; --good: #2f7a3a; --warn: #b4501c;
+  --gold: #f7a70a; --sky: #11a2fc;
+  --bg: #f7f7f8; --surface: #ffffff; --ink: #1f2328; --heading: #0a6fc2; --link: #0a6fc2; --muted: #5b616b; --line: #dfe1e5;
+  --accent: var(--gold); --accent-ink: #1f2328; --good: #2f7a3a; --warn: #b3261e;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #161a2e; --surface: #20253f; --ink: #eceef6; --heading: #ffffff; --muted: #a6abc6; --line: #343a5c;
-    --accent: var(--orange); --accent-ink: #1b1f38; --good: #7cc684; --warn: #ff8a8a; }
+  :root { --bg: #141619; --surface: #1d2024; --ink: #eef0f3; --heading: #ffffff; --link: #5cbcff; --muted: #a3a9b3; --line: #32363d;
+    --good: #7cc684; --warn: #ff8a8a; }
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink);
@@ -27,13 +29,11 @@ main { max-width: 560px; margin: 0 auto; padding: 16px 16px 48px; }
 h1 { font-family: "Manrope", "Poppins", sans-serif; font-weight: 800; color: var(--heading);
   font-size: 1.5rem; line-height: 1.2; margin: 8px 0 4px; }
 h2 { font-size: .95rem; font-weight: 600; margin: 22px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-a { color: var(--heading); }
-/* The header: the logo's mark and name, over the swoosh's orange and its sky edge. */
-.brand { background: var(--surface); border-bottom: 3px solid var(--orange); box-shadow: 0 1px 0 var(--sky); }
-.brand-inner { max-width: 560px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
-.brand img { display: block; height: 44px; width: auto; background: #ffffff; border-radius: 10px; padding: 2px 4px; }
-.brand-name { font-family: "Manrope", "Poppins", sans-serif; font-weight: 800; color: var(--heading);
-  text-transform: uppercase; letter-spacing: .04em; font-size: 1.05rem; line-height: 1.15; }
+a { color: var(--link); }
+/* The header: Uplift's logo on white in both themes (its washer window is transparent and must read white), over the sky underline from the logo. */
+.brand { background: #ffffff; border-bottom: 3px solid var(--sky); }
+.brand-inner { max-width: 560px; margin: 0 auto; padding: 10px 16px; }
+.brand img { display: block; height: 72px; width: auto; }
 .foot { max-width: 560px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: .85rem; }
 #label:empty { display: none; }
 p { margin: 8px 0; }
@@ -68,9 +68,9 @@ h2 .count { text-transform: none; letter-spacing: 0; font-weight: 400; }
 .item .detail { margin: 1px 0 0; font-size: .875rem; line-height: 1.35; }
 .item button { flex: 0 0 auto; min-height: 44px; padding: 8px 14px; white-space: nowrap; }
 /* The pickup page: what the participant is asked to do, before anything else. */
-.notice { font-size: 1.15rem; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); border-left: 6px solid var(--orange); background: var(--surface); margin: 12px 0; }
+.notice { font-size: 1.15rem; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); border-left: 6px solid var(--gold); background: var(--surface); margin: 12px 0; }
 .status { position: sticky; bottom: 12px; margin-top: 14px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
 .status.ok { border-color: var(--good); }
 .status.err { border-color: var(--warn); }
 .empty { color: var(--muted); font-style: italic; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }

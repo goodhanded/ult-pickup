@@ -21,7 +21,7 @@ Apps Script can serve pages itself, but on phones signed into Google accounts th
 
 ## Branding
 
-The pages use Uplift's own look, taken from its logo and upliftlaundrytruck.org: navy `#3a406d`, orange `#ff9d55` and sky `#03a2ff`, with Manrope for headings and Poppins for text. `assets/ult-mark.png` is the ULT mark cropped from Uplift's logo. The fonts are served from `assets/fonts/` (SIL Open Font License, copies beside them) rather than Google Fonts, so opening a page sends nothing to a third party. The colors are set once at the top of `assets/style.css`, for light and dark mode.
+The pages use Uplift's own look, taken from its current logo (the washer and "Uplift" script, an image on upliftlaundrytruck.org's home page) and its site: gold `#f7a70a`, sky `#11a2fc` and sun `#ffde59`, with Manrope for headings and Poppins for text. `assets/uplift-logo.png` is that logo without its tagline; it sits on a white header in both themes because the washer window is transparent. White text is unreadable on gold or sky, so buttons are gold with dark text and headings and links use a deeper sky. The fonts are served from `assets/fonts/` (SIL Open Font License, copies beside them) rather than Google Fonts, so opening a page sends nothing to a third party. The colors are set once at the top of `assets/style.css`, for light and dark mode. (The oval "ULT" logo is older; the site still uses it as its link-preview image.)
 
 ## Moving to Uplift
 

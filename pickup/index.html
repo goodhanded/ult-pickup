@@ -11,8 +11,7 @@
 <body>
 <header class="brand">
   <div class="brand-inner">
-    <img src="../assets/ult-mark.png" alt="" width="62" height="44">
-    <span class="brand-name" id="brandName">Uplift Laundry Truck</span>
+    <img src="../assets/uplift-logo.png" alt="Uplift Laundry Truck" width="176" height="72">
   </div>
 </header>
 <main>
@@ -81,7 +80,6 @@
 
     function show(res) {
       if (!res.ok || res.state === 'missing' || res.state === 'inactive') { ULT.reveal('missing'); return; }
-      ULT.setText('brandName', res.programName);
       fill('fill-site', res.siteName);
       fill('fill-name', res.name);
       fill('fill-number', res.requestNumber);

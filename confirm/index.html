@@ -11,8 +11,7 @@
 <body>
 <header class="brand">
   <div class="brand-inner">
-    <img src="../assets/ult-mark.png" alt="" width="62" height="44">
-    <span class="brand-name" id="brandName">Uplift Laundry Truck</span>
+    <img src="../assets/uplift-logo.png" alt="Uplift Laundry Truck" width="176" height="72">
   </div>
 </header>
 <main>
@@ -55,7 +54,6 @@
 
     ULT.read('confirm', tok).then(function (data) {
       if (!data.ok || data.state === 'missing') { ULT.reveal('missing'); return; }
-      ULT.setText('brandName', data.programName);
       ULT.setText('label', 'Request ' + data.requestNumber);
       ULT.setText('ask', 'Hi ' + data.firstName + ', do you still need laundry help?');
       document.getElementById('open').hidden = data.state !== 'open';
