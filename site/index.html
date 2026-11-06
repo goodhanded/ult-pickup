@@ -9,8 +9,12 @@
   <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<header class="brand">
+  <div class="brand-inner">
+    <img src="../assets/uplift-logo.png" alt="Uplift Laundry Truck" width="176" height="72">
+  </div>
+</header>
 <main>
-  <p class="num" id="label">Uplift Laundry Truck</p>
 
   <div id="loading" data-state><p class="muted">Loading...</p></div>
 
@@ -43,6 +47,7 @@
 
   <div id="result" class="status" hidden></div>
 </main>
+<footer class="foot"><a href="https://upliftlaundrytruck.org/">upliftlaundrytruck.org</a></footer>
 <script src="../assets/config.js"></script>
 <script src="../assets/app.js"></script>
 <script>
@@ -57,7 +62,6 @@
       if (!res.ok || res.state === 'missing') { ULT.forgetSite(tok); ULT.reveal('missing'); return; }
       ULT.rememberSite(tok);
       data = res;
-      ULT.setText('label', res.programName);
       ULT.setText('siteName', res.siteName);
       document.title = res.siteName;
       render();
