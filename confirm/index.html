@@ -9,8 +9,14 @@
   <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<header class="brand">
+  <div class="brand-inner">
+    <img src="../assets/ult-mark.png" alt="" width="62" height="44">
+    <span class="brand-name" id="brandName">Uplift Laundry Truck</span>
+  </div>
+</header>
 <main>
-  <p class="num" id="label">Uplift Laundry Truck</p>
+  <p class="num" id="label"></p>
 
   <div id="loading" data-state><p class="muted">Loading your request...</p></div>
 
@@ -39,6 +45,7 @@
 
   <div id="result" class="status" hidden></div>
 </main>
+<footer class="foot"><a href="https://upliftlaundrytruck.org/">upliftlaundrytruck.org</a></footer>
 <script src="../assets/config.js"></script>
 <script src="../assets/app.js"></script>
 <script>
@@ -48,7 +55,8 @@
 
     ULT.read('confirm', tok).then(function (data) {
       if (!data.ok || data.state === 'missing') { ULT.reveal('missing'); return; }
-      ULT.setText('label', data.programName + ' · ' + data.requestNumber);
+      ULT.setText('brandName', data.programName);
+      ULT.setText('label', 'Request ' + data.requestNumber);
       ULT.setText('ask', 'Hi ' + data.firstName + ', do you still need laundry help?');
       document.getElementById('open').hidden = data.state !== 'open';
       document.getElementById('confirmed').hidden = data.state !== 'confirmed';

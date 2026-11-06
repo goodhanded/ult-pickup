@@ -19,6 +19,10 @@ Apps Script can serve pages itself, but on phones signed into Google accounts th
 - Laundromats see first name and last initial, never a full name, email, or any part of a phone number.
 - A pickup code opens one request and nothing else. A laundromat page remembers its own link in the phone's browser storage, and the pickup page sends it along when a pickup is recorded, so Uplift can tell a pickup confirmed on the laundromat's phone from one confirmed on any other. Nothing depends on it.
 
+## Branding
+
+The pages use Uplift's own look, taken from its logo and upliftlaundrytruck.org: navy `#3a406d`, orange `#ff9d55` and sky `#03a2ff`, with Manrope for headings and Poppins for text. `assets/ult-mark.png` is the ULT mark cropped from Uplift's logo. The fonts are served from `assets/fonts/` (SIL Open Font License, copies beside them) rather than Google Fonts, so opening a page sends nothing to a third party. The colors are set once at the top of `assets/style.css`, for light and dark mode.
+
 ## Moving to Uplift
 
 1. Change `apiUrl` in `assets/config.js` to Uplift's own Apps Script deployment.
